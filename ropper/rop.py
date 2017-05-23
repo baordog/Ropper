@@ -134,16 +134,20 @@ class Ropper(object):
 		Register = Enum('Register', 'ax cx dx bx sp bp si di r8 r9 r10 r11 r12 r13 r14 r15') 
 
         for reg in regs:
-	    if "r" not in reg: 		
+	    if reg.isalpha(): 		
             	reg_tmp = reg.strip()[1:]
 	    else: 
 		reg_tmp = reg
             if not Register[reg_tmp]:
                 raise RopperError('Invalid register: "%s"' % reg)
-	    if "r" not in reg: 	
-            	insts = [toBytes(0xff , 0xe0 | Register[reg_tmp]), toBytes(0xff, 0xd0 | Register[reg_tmp]),  toBytes(0x50 | Register[reg_tmp] , 0xc3)]
+	    if reg.isalpha(): 	
+            	insts = [toBytes(0xff,0xe0 | Register[reg_tmp]),
+			 toBytes(0xff,0xd0 | Register[reg_tmp]),  
+			 toBytes(0x50 | Register[reg_tmp] , 0xc3),
+			 toBytes(0xff,0x10 | Register[reg_tmp]), 
+			 toBytes(0xff,0x20 | Register[reg_tmp])]
 
-	    if binary.arch.mode == capstone.CS_MODE_64 and "r" in reg:
+	    if binary.arch.mode == capstone.CS_MODE_64 and not reg.isalpha():
 		    insts = [toBytes(0x41,0xFF,(0xE0 | Register[reg_tmp]) - 8), 
 		             toBytes(0x41,0xFF,(0xD0 | Register[reg_tmp]) - 8),
 			     toBytes(0x41,0xFF,(0x20 | Register[reg_tmp]) - 8),#jmp [r8]
