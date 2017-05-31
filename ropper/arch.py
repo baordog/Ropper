@@ -345,8 +345,13 @@ class ArchitecturePPC64(ArchitecturePPC):
         if 'keystone' in globals():
             self._ksarch = (keystone.KS_ARCH_PPC, keystone.KS_MODE_64)
 
+class ArchitectureSparc(Architecture):
 
+    def __init__(self):
+        super(ArchitectureSparc, self).__init__(CS_ARCH_SPARC,CS_MODE_BIG_ENDIAN,4,4)             
+	self._name = 'SPARC' 
 
+SPARC = ArchitectureSparc() 
 x86 = ArchitectureX86()
 x86_64 = ArchitectureX86_64()
 MIPS = ArchitectureMips()

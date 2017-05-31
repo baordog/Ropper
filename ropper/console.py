@@ -35,7 +35,8 @@ import ropper
 import cmd
 import re
 import os
-
+import traceback 
+import sys 
 # Python2 compatibility
 try:
     input = raw_input
@@ -52,6 +53,7 @@ def safe_cmd(func):
         except KeyboardInterrupt:
             ConsolePrinter().println()
         except BaseException as e:
+	    traceback.print_exc(file=sys.stdout)	
             ConsolePrinter().printError(e)
             ConsolePrinter().printError('Please report this error on https://github.com/sashs/ropper')
     return cmd

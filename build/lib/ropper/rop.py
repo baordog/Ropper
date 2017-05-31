@@ -120,8 +120,48 @@ class Ropper(object):
 
         return toReturn
 
-
     def _searchJmpReg(self, section, binary, regs):
+	if binary.arch.arch == capstone.CS_ARCH_X86:
+	        return  self._searchJMPRegx86(section,binary, regs)
+    	elif binary.arch.arch == capstone.CS_ARCH_SPARC:
+		return self._searchJMPRegSparc( section, binary, regs)
+	else:
+	    raise NotSupportedError(
+		'wrong architecture, \'jmp <reg>\' only supported on x86/SPARC') 
+   
+    def _searchJMPRegSparc(self,section, binary, regs):
+	cs = self.__getCs(binary.arch) 
+	toReturn = [] 
+	Register = {}
+	f = 0 
+	for z in ['g','l','o','i']:
+		for i in range(0,7): 
+			lreg = '%' +  z + str(i) 
+			Register[lreg] = f   
+			f = f+1 
+
+	print Register
+	for reg in regs: 
+	    q = Register[reg]
+	    print q 
+	    enc1 = int('10000001110000000000000000000000',2) 
+	    print enc1 
+	    while(q): 
+	    	enc1 += int('100000000000000',2)  	
+		q = q-1 
+	    print enc1 	
+	    insts = [struct.pack('>I', enc1)]
+	    print insts 
+	    for w in insts:
+		print "GO" 
+	    	':'.join(x.encode('hex') for x in w)
+            for inst in insts:	
+		print "made it inside"     
+                toReturn.extend(self._searchOpcode(section, binary, inst, len(inst),True))
+    		
+        return sorted(toReturn, key=lambda x: str(x))
+
+    def _searchJMPRegx86(self, section, binary, regs):
         if binary.arch.arch != capstone.CS_ARCH_X86:
             raise NotSupportedError(
                 'Wrong architecture, \'jmp <reg>\' only supported on x86/x86_64')
